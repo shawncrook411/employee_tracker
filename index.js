@@ -1,63 +1,73 @@
 const inquirer = require('inquirer')
+const connection = require('./config/connection.js')
 
-inquirer.prompt(
-    [
-        {   
-            type: 'rawlist',
-            message: 'Please select from the available options',
-            name: 'options',
-            choices: [
-                {name: 'view all departments', value: 'view dept'},
-                {name: 'view all roles', value: 'view roles'},
-                {name: 'view all employees', value: 'view empl'},
-                {name: 'add a deparment', value: 'add dept'},
-                {name: 'add a role', value: 'add role'},
-                {name: 'add an employee', value: 'add empl'},
-                {name: 'update an employee role', value: 'update empl'},
-            ],
-        },
-        {
-            type: 'input', 
-            message: '',
-            name: '',
-        },
+var prompt = function () {
+    inquirer.prompt(
+        [
+            {
+                type: 'rawlist',
+                message: 'Please select from the available options',
+                name: 'options',
+                choices: [
+                    { name: 'View All Departments', value: 'view dept' },
+                    { name: 'View All Roles', value: 'view roles' },
+                    { name: 'View All Employees', value: 'view empl' },
+                    { name: 'Add a Deparment', value: 'add dept' },
+                    { name: 'Add a Role', value: 'add role' },
+                    { name: 'Add an Employee', value: 'add empl' },
+                    { name: 'Update an Employee role', value: 'update empl' },
+                    { name: 'Quit', value: 'quit' }
+                ],
+            }
+        ]
+    )
+    .then((response) => {
+        let { options } = response
+        switch (options) {
+            case 'view dept':
+                // View all departments formatted tables showing dept. names and dept. ids
+                const sql = 'SELECT * FROM department'
+                connection.query(sql, (err, result) => {
+                    console.log(result)
+                })
+                break
 
-    ]
-)
-.then((response) => {
-   let { options } = response
-   switch (options)
-   {
-    case 'view dpet':
+            case 'view roles':
+                // presented with job title, role id, the dept role belongs to, and salary
+                console.log('success')
+                break
 
-    break
+            case 'view empl':
+                // formatted table showing employee data, including empl ids, first names, last names, job titles, depts., salaries, and managers
+                break
 
-    case 'view roles':
+            case 'add dept':
+                // Prompted to enter the name of the dept. and then create
+                break
 
-    break
+            case 'add role':
+                // prmpted to enter the name, salary, and dept. for the role and then create
+                break
 
-    case 'view empl':
+            case 'add empl':
+                //prmpted for first name, last name, role, and manager and then create
+                break
 
-    break
+            case 'update empl':
+                //rpmpted to select employee to update and their new role and this info is then updated
+                break
 
-    case 'add dept':
+            case 'quit':
+                process.exit(0)
+        }
+        return
+    })
+    .then(() => {
+        prompt()
+    })
+    .catch((error) => {
+        console.error(error)
+    })
+}
 
-    break
-
-    case 'add role':
-
-    break
-
-    case 'add empl':
-
-    break
-
-    case 'update empl':
-
-    break
-
-    default:
-        
-   }
-
-})
+prompt()
