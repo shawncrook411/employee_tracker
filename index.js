@@ -99,9 +99,11 @@ var prompt = function () {
                 .then((res) => {
                     sql = `INSERT INTO role (title, salary, department_id)
                            VALUES ('${res.title}', '${res.salary}', '${res.dept}')`
-                    connection.query(sql, (err, result) => console.log(result));
+                    connection.query(sql, (err, result) => {
+                        console.log(result)
+                        prompt()
+                    });
                 })
-                prompt();
                 break
 
             case 'add empl':
@@ -124,7 +126,7 @@ var prompt = function () {
                     name: 'manager'
                 }])
                     .then((res) => {
-                        sql = `INSERT INTO department (first_name, last_name, role_id, manager_id)
+                        sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
                            VALUES ('${res.first}', '${res.last}', '${res.role}', '${res.manager}')`
                         connection.query(sql, (err, result) => {
                             console.log(result);
