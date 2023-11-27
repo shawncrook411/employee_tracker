@@ -1,10 +1,11 @@
 const inquirer = require('inquirer')
 const connection = require('./config/connection.js')
 
+//Main function, allows for recursive repetitive calling
 var prompt = function () {
     inquirer.prompt(
         [
-            {
+            { //Lets the user see the options of queries
                 type: 'rawlist',
                 message: 'Please select from the available options',
                 name: 'options',
@@ -19,7 +20,7 @@ var prompt = function () {
                     { name: 'Quit', value: 'quit' }
                 ],
             }
-        ]
+        ] 
     )
     .then(async (response) => {
         let { options } = response
@@ -29,7 +30,7 @@ var prompt = function () {
                 // View all departments formatted tables showing dept. names and dept. ids
                 sql = 'SELECT * FROM department'
                 connection.query(sql, (err, result) => {
-                    console.log(result)
+                    console.table(result)
                     prompt()
                 });
                 break
@@ -39,13 +40,13 @@ var prompt = function () {
                 sql =  `SELECT role.id, role.title, role.salary, department.name AS department 
                         FROM role JOIN department ON role.department_id = department.id`
                 connection.query(sql, (err, result) => {
-                  console.log(result);
+                  console.table(result);
                   prompt();
                 });
                 break
 
             case 'view empl':
-                // formatted table showing employee data, including empl ids, first names, last names, job titles, depts., salaries, and managers
+                // formatted table showing employee data, including employee ids, first names, last names, job titles, depts., salaries, and managers
                 sql = 
                         `SELECT e.id AS ID, 
                         CONCAT(e.first_name, " ", e.last_name) AS Name,
@@ -59,13 +60,13 @@ var prompt = function () {
                         JOIN role ON e.role_id = role.id
                         JOIN department ON role.department_id = department.id`
                 connection.query(sql, (err, result) => {
-                    console.log(result);
+                    console.table(result);
                     prompt();
                 });
                 break
 
             case 'add dept':
-                // Prompted to enter the name of the dept. and then create
+                // Prompted to enter the name of the dept. and then create in the database
                 inquirer.prompt([{
                     type: 'input',
                     message: "What's the name of the new Department?",
@@ -75,14 +76,14 @@ var prompt = function () {
                         sql = `INSERT INTO department (name)
                            VALUES ('${res.dept}')`
                         connection.query(sql, (err, result) => {
-                            console.log(result)
+                            console.table(result)
                             prompt()
                         })
                     })
                 break
 
             case 'add role':
-                // prmpted to enter the name, salary, and dept. for the role and then create
+                // Prompted to enter the name, salary, and dept. for the role and then create
                 inquirer.prompt([{
                     type: 'input',
                     message: "What's the title of the new role?",
@@ -100,14 +101,14 @@ var prompt = function () {
                     sql = `INSERT INTO role (title, salary, department_id)
                            VALUES ('${res.title}', '${res.salary}', '${res.dept}')`
                     connection.query(sql, (err, result) => {
-                        console.log(result)
+                        console.table(result)
                         prompt()
                     });
                 })
                 break
 
             case 'add empl':
-                //prmpted for first name, last name, role, and manager and then create
+                //Prompted for first name, last name, role, and manager and then create
                 inquirer.prompt([{
                     type: 'input',
                     message: "What's the First Name of the new employee?",
@@ -129,14 +130,14 @@ var prompt = function () {
                         sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
                            VALUES ('${res.first}', '${res.last}', '${res.role}', '${res.manager}')`
                         connection.query(sql, (err, result) => {
-                            console.log(result);
+                            console.table(result);
                             prompt();
                         });
                     })
                 break
 
             case 'update empl':
-                //rpmpted to select employee to update and their new role and this info is then updated
+                //Prompted to select employee to update and their new role and this info is then updated
                 sql = `SELECT CONCAT(e.first_name, " ", e.last_name) AS Name FROM employee e`
                 let array = []
                 connection.query(sql, (err, result) => {
@@ -157,14 +158,14 @@ var prompt = function () {
                         .then((res) => { 
                             sql = `UPDATE employee SET role_id = ${res.role} WHERE id=${res.employee}`
                             connection.query(sql, (err, result) => {
-                                console.log(result)
+                                console.table(result)
                                 prompt()
                             })
                        }                          
                     )                   
                 }) 
                 break
-
+            //Allows the user to quit without using Ctrl + C
             case 'quit':
                 process.exit(0)                
         }      
@@ -173,4 +174,5 @@ var prompt = function () {
         console.error(error)
     })
 }
+//Calls the main function for the first time
 prompt()
