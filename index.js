@@ -1,7 +1,7 @@
 const inquirer = require('inquirer')
 const connection = require('./config/connection.js')
 
-var prompt = function () {
+var prompt = async function () {
     inquirer.prompt(
         [
             {
@@ -23,22 +23,33 @@ var prompt = function () {
     )
     .then((response) => {
         let { options } = response
+        let sql;
         switch (options) {
             case 'view dept':
                 // View all departments formatted tables showing dept. names and dept. ids
-                const sql = 'SELECT * FROM department'
-                connection.query(sql, (err, result) => {
-                    console.log(result)
-                })
+                sql = 'SELECT * FROM department'
                 break
 
             case 'view roles':
                 // presented with job title, role id, the dept role belongs to, and salary
-                console.log('success')
+                sql =  `SELECT role.id, role.title, role.salary, department.name AS department 
+                        FROM role JOIN department ON role.department_id = department.id`
                 break
 
             case 'view empl':
                 // formatted table showing employee data, including empl ids, first names, last names, job titles, depts., salaries, and managers
+                sql = 
+                        `SELECT e.id AS ID, 
+                        CONCAT(e.first_name, " ", e.last_name) AS Name,
+                        CONCAT(m.first_name, " ", m.last_name) AS Manager,
+                        role.title AS Title,
+                        role.salary AS Salary,
+                        department.name AS Department
+                        FROM employee e
+                        LEFT JOIN employee m
+                        ON m.id = e.manager_id
+                        JOIN role ON e.role_id = role.id
+                        JOIN department ON role.department_id = department.id`
                 break
 
             case 'add dept':
@@ -59,8 +70,9 @@ var prompt = function () {
 
             case 'quit':
                 process.exit(0)
-        }
-        return
+                break
+        }        
+        connection.query(sql, (err, result) => console.log(result))        
     })
     .then(() => {
         prompt()
