@@ -138,23 +138,30 @@ var prompt = function () {
 
             case 'update empl':
                 //Prompted to select employee to update and their new role and this info is then updated
-                sql = `SELECT CONCAT(e.first_name, " ", e.last_name) AS Name FROM employee e`
+                let sql = `SELECT CONCAT(e.first_name, " ", e.last_name) AS Name FROM employee e`
+                let role = `SELECT * FROM role`
                 let array = []
+                let roles = []
+                let j = 1;
                 connection.query(sql, (err, result) => {
                     for (let i = 0; i < result.length; i++) {
                         array.push({ name: `${result[i].Name}`, value: i+1})
-                    }                    
+                    }  
 
-                    inquirer.prompt([{
-                        type: 'rawlist',
-                        message: 'Which employee would you like to update?',
-                        name: 'employee',
-                        choices: array
-                    },{
-                        type: 'input',
-                        message: 'What is their new role ID?',
-                        name: 'role'
-                    }])
+                    connection.query(role, (err, result) => {
+                        result.forEach( (role) => roles.push({ name: `${role.title}`, value: role.id })  )                              
+
+                        inquirer.prompt([{
+                            type: 'rawlist',
+                            message: 'Which employee would you like to update?',
+                            name: 'employee',
+                            choices: array
+                        },{
+                            type: 'rawlist',
+                            message: 'What is their new role ID?',
+                            name: 'role',
+                            choices: roles
+                        }])
                         .then((res) => { 
                             sql = `UPDATE employee SET role_id = ${res.role} WHERE id=${res.employee}`
                             connection.query(sql, (err, result) => {
@@ -162,7 +169,7 @@ var prompt = function () {
                                 prompt()
                             })
                        }                          
-                    )                   
+                    )})                     
                 }) 
                 break
             //Allows the user to quit without using Ctrl + C
